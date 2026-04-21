@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface AnalyzeResult {
   finalAnswer: string;
@@ -23,12 +23,17 @@ function App() {
   } | null>(null);
 
   // Check server health on mount
-  useState(() => {
+  useEffect(() => {
     fetch("/api/health")
       .then((res) => res.json())
-      .then((data) => setServerStatus(data))
+      .then((data) =>
+        setServerStatus({
+          ok: data.status === "ok",
+          hasApiKey: !!data.hasApiKey,
+        }),
+      )
       .catch(() => setServerStatus({ ok: false, hasApiKey: false }));
-  });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

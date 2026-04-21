@@ -1,5 +1,8 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Dynamic import for CodeAgent - will be loaded from code-agent sibling directory
 // Use CODE_AGENT_PATH env var to override, defaults to sibling directory
@@ -67,12 +70,10 @@ app.post(
     if (!runController) {
       const loaded = await loadCodeAgent();
       if (!loaded) {
-        res
-          .status(500)
-          .json({
-            error:
-              "CodeAgent module not found. Ensure code-agent is in sibling directory.",
-          });
+        res.status(500).json({
+          error:
+            "CodeAgent module not found. Ensure code-agent is in sibling directory.",
+        });
         return;
       }
     }
