@@ -4,20 +4,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Dynamic import for CodeAgent - will be loaded from code-agent sibling directory
-// Use CODE_AGENT_PATH env var to override, defaults to sibling directory
-const CODE_AGENT_PATH =
-  process.env.CODE_AGENT_PATH || "../../code-agent/src/runController.js";
-
-let runController: any;
-let ControllerInput: any;
+// Dynamic import for CodeAgent - import directly from modules, not index.js
+let askCodebase: any;
+let loadFilesRecursive: any;
 
 async function loadCodeAgent() {
   try {
-    // @ts-ignore - dynamic import path
-    const codeAgent = await import(CODE_AGENT_PATH);
-    runController = codeAgent.runController;
-    ControllerInput = codeAgent.ControllerInput;
+    // @ts-ignore - dynamic import paths
+    const askModule = await import("../../../CodeAgent/src/ask.js");
+    const loadModule = await import("../../../CodeAgent/src/loadFiles.js");
+    askCodebase = askModule.askCodebase;
+    loadFilesRecursive = loadModule.loadFilesRecursive;
     return true;
   } catch (err) {
     console.error("Failed to load CodeAgent:", err);
@@ -67,7 +64,7 @@ app.post(
     }
 
     // Load CodeAgent if not loaded yet
-    if (!runController) {
+    if (!askCodebase) {
       const loaded = await loadCodeAgent();
       if (!loaded) {
         res.status(500).json({
@@ -79,19 +76,17 @@ app.post(
     }
 
     try {
-      const input: typeof ControllerInput = {
-        repoPath,
-        question,
-        model: "gpt-4o-mini",
-      };
+      // Load files from the repository
+      const files = loadFilesRecursive(repoPath);
 
-      const result = await runController(input);
+      // Ask the question using the CodeAgent
+      const result = await askCodebase(files, question);
 
       res.json({
-        finalAnswer: result.finalAnswer,
-        topFiles: result.topFiles || [],
-        selectedChunks: result.selectedChunks || [],
-        steps: result.steps || [],
+        finalAnswer: result.answer,
+        // topFiles: result.topFiles || [],
+        // selectedChunks: result.selectedChunks || [],
+        // steps: [],
       });
     } catch (error) {
       console.error("Error running controller:", error);

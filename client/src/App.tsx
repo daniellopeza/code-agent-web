@@ -131,50 +131,14 @@ function App() {
         <div className="results-section">
           <h2>Analysis Results</h2>
 
-          <div className="answer-box">
-            <strong>Answer:</strong>
-            {"\n\n"}
-            {result.finalAnswer}
+          <div className="form-group">
+            <textarea
+              readOnly
+              value={result.finalAnswer}
+              rows={10}
+              style={{ width: "100%", fontFamily: "monospace" }}
+            />
           </div>
-
-          {result.topFiles && result.topFiles.length > 0 && (
-            <div className="files-section">
-              <h3>Top Files</h3>
-              <div className="file-list">
-                {result.topFiles.map((file, i) => (
-                  <span key={i} className="file-tag">
-                    {file}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {result.selectedChunks && result.selectedChunks.length > 0 && (
-            <div className="chunks-section">
-              <h3>Relevant Code Chunks</h3>
-              {result.selectedChunks.map((chunk, i) => (
-                <div key={i} className="chunk-item">
-                  <div className="chunk-header">
-                    <span>{chunk.file}</span>
-                    <span>Score: {chunk.score.toFixed(2)}</span>
-                  </div>
-                  <div className="chunk-content">{chunk.content}</div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {result.steps && result.steps.length > 0 && (
-            <div className="steps-section">
-              <h3>Analysis Steps</h3>
-              <ul className="steps-list">
-                {result.steps.map((step, i) => (
-                  <li key={i}>{step}</li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       )}
     </div>
